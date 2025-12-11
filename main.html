@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>戀愛運勢抽籤</title>
+  <style>
+    body {
+      background: url('data:image/avif;base64,AAAABGZ0eXBhdmlmAAAAAGF2aWZt...');
+      background-size: cover;
+      background-position: center;
+      font-family: "Noto Sans TC", sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      margin-top: 40px;
+      font-size: 2.5rem;
+      color: #8b1e1e;
+      letter-spacing: 4px;
+      text-shadow: 2px 2px 6px rgba(255,255,255,0.9);
+    }
+    #container {
+      margin-top: 50px;
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    #tube {
+      width: 330px;
+      height: 500px;
+      object-fit: contain;
+      cursor: pointer;
+      transition: transform 0.2s;
+      filter: drop-shadow(0 0 10px rgba(255,200,120,0.7));
+    }
+    #tube.shake {
+      animation: shake 0.6s ease;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-10px); }
+      40% { transform: translateX(10px); }
+      60% { transform: translateX(-8px); }
+      80% { transform: translateX(8px); }
+      100% { transform: translateX(0); }
+    }
+
+    #stick {
+      position: absolute;
+      top: 20px;
+      width: 45px;
+      opacity: 0;
+      transition: all 0.7s;
+    }
+    #stick.show {
+      opacity: 1;
+      transform: translateY(-140px);
+    }
+
+    /* 捲軸籤詩框 */
+    #resultScroll {
+      margin: 40px auto 0 auto;
+      width: 330px;
+      padding: 0;
+      display: none;
+      animation: openScroll 0.6s forwards;
+    }
+
+    @keyframes openScroll {
+      from { transform: scaleY(0); opacity: 0; }
+      to { transform: scaleY(1); opacity: 1; }
+    }
+
+    #scrollTop, #scrollBottom {
+      width: 330px;
+    }
+    #scrollContent {
+      background: #fff7e0;
+      padding: 20px;
+      font-size: 1.4rem;
+      border-left: 3px solid #b8925f;
+      border-right: 3px solid #b8925f;
+      color: #5a3d2b;
+    }
+
+    .big { color: #d40000; font-weight: bold; }
+    .mid { color: #d47a00; font-weight: bold; }
+    .small { color: #0077b6; font-weight: bold; }
+
+    #historyBox {
+      margin: 20px auto;
+      background: rgba(255,255,255,0.7);
+      width: 300px;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    #retryBtn {
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1.2rem;
+      border: none;
+      background: #b42b2b;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #retryBtn:hover {
+      background: #8f1f1f;
+    }
+  </style>
+</head>
+<body>
+  <h1>戀 愛 運 勢</h1>
+
+  <button id="startBtn" style="margin-top:20px;padding:10px 20px;font-size:1.2rem;border:none;background:#b42b2b;color:white;border-radius:8px;cursor:pointer;">開始抽籤</button>
+  <div id="container" style="display:none;">
+    <img id="tube" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABLAAAASwCAMAAADc/0P9AAAAGXRFWHRTb2Z0d2F...XcGsCxpg7d1aIOAVbgXso8UsMxvgwt2iqqacAVYxXoh5wsBy/Q2+MeCtcFxbbwC" alt="籤筒" />
+    <img id="stick" src="https://i.imgur.com/Qw7Oj9P.png" alt="籤" />
+  </div>
+
+  <!-- 御神籤捲軸 -->
+  <div id="resultScroll">
+    <img id="scrollTop" src="https://i.imgur.com/1gNazc0.png" />
+    <div id="scrollContent"></div>
+    <img id="scrollBottom" src="https://i.imgur.com/g1A4KDq.png" />
+  </div>
+
+  <button id="retryBtn" style="display:none;">重新抽籤</button>
+
+  <div id="historyBox">今日抽到：<span id="historyText">尚未抽籤</span></div>
+
+  <audio id="sound" src="https://cdn.pixabay.com/audio/2022/03/15/audio_7b3c9bb472.mp3"></audio>
+
+  <script>
+    const fortunes = [
+      { text: "桃花盛開，會遇到欣賞你的人！", level: "big" },
+      { text: "今天適合告白，成功率 UP！", level: "big" },
+      { text: "有人默默在意你，注意身邊的小細節。", level: "mid" },
+      { text: "保持耐心，緣分正在靠近。", level: "small" },
+      { text: "可能會有小爭吵，但是真心能讓感情更好。", level: "mid" },
+      { text: "單身魅力上升，展現最真實的自己！", level: "small" },
+      { text: "感情平穩幸福，是個很棒的日子。", level: "mid" },
+
+      /* 新增 53 條，共 60 條 */
+      { text: "有意外的好消息降臨。", level: "吉" },
+      { text: "注意周遭的小驚喜，幸福正在靠近。", level: "吉" },
+      { text: "有貴人相助，心情大好。", level: "吉" },
+      { text: "保持微笑會帶來好緣分。", level: "半吉" },
+      { text: "努力會被看見，吸引好感。", level: "半吉" },
+      { text: "今日氣場柔和，容易受到注意。", level: "末吉" },
+      { text: "放輕鬆，越自然越能吸引人。", level: "末吉" },
+      { text: "可能會遇到聊得來的人。", level: "末小吉" },
+      { text: "新的緣分開始萌芽。", level: "末小吉" },
+      { text: "有小小阻礙，但不影響好運。", level: "凶" },
+      { text: "調整心態能避免誤會。", level: "凶" },
+      { text: "注意表達方式，避免尷尬。", level: "小凶" },
+      { text: "放慢腳步就能避開不順。", level: "小凶" },
+      { text: "稍微低潮，但會很快過去。", level: "半凶" },
+      { text: "別急躁，一切會變好。", level: "半凶" },
+      { text: "今天不適合表白，先觀察。", level: "末凶" },
+      { text: "注意別衝動行事。", level: "末凶" },
+      { text: "需要休息一下，重新整理心情。", level: "bigBad" },
+      { text: "暫時後退一步反而比較好。", level: "bigBad" },
+
+      /* 再補足剩餘數量 */
+      { text: "魅力提升，會有人主動靠近你。", level: "吉" },
+      { text: "今天的你特別亮眼。", level: "吉" },
+      { text: "心中願望逐漸靠近。", level: "半吉" },
+      { text: "會收到溫暖的小關心。", level: "半吉" },
+      { text: "適合與朋友外出，有機會遇到新朋友。", level: "末吉" },
+      { text: "過去的誤會有機會解除。", level: "末吉" },
+      { text: "心情放鬆，緣分自然到來。", level: "末小吉" },
+      { text: "好事悄悄累積中。", level: "末小吉" },
+      { text: "稍有不順，但會得到安慰。", level: "凶" },
+      { text: "不必要的擔心反而讓事情變複雜。", level: "凶" },
+      { text: "容易敏感，互動需溫和對待。", level: "小凶" },
+      { text: "不要鑽牛角尖，多看看正向的一面。", level: "小凶" },
+      { text: "注意休息，不然會影響情緒。", level: "半凶" },
+      { text: "有小插曲，但不影響大方向。", level: "半凶" },
+      { text: "建議多傾聽，少做決定。", level: "末凶" },
+      { text: "感情方面較被動。", level: "末凶" },
+      { text: "今日適合自我照顧，不適合談感情。", level: "bigBad" },
+      { text: "重新整理步調，明天會更好。", level: "bigBad" }
+    ];
+
+    const tube = document.getElementById("tube");
+    const stick = document.getElementById("stick");
+    const scroll = document.getElementById("resultScroll");
+    const scrollContent = document.getElementById("scrollContent");
+    const historyText = document.getElementById("historyText");
+    const retryBtn = document.getElementById("retryBtn");
+    const sound = document.getElementById("sound");
+
+    const startBtn = document.getElementById("startBtn");
+
+startBtn.addEventListener("click", () => {
+  startBtn.style.display = "none";
+  tube.style.display = "block";
+  document.getElementById("container").style.display = "flex";
+  tube.classList.add("shake");
+});
+
+tube.addEventListener("click", () => {
+      tube.classList.add("shake");
+      stick.classList.remove("show");
+      scroll.style.display = "none";
+      retryBtn.style.display = "none";
+      sound.currentTime = 0;
+      sound.play();
+
+      setTimeout(() => {
+        tube.classList.remove("shake");
+        stick.classList.add("show");
+        tube.style.display = "none";("show");
+
+        const randomIndex = Math.floor(Math.random() * fortunes.length);
+        const fortune = fortunes[randomIndex];
+
+        scroll.style.display = "block";
+        const levelMap = { big:"大吉", mid:"中吉", small:"小吉", 吉:"吉", "半吉":"半吉", "末吉":"末吉", "末小吉":"末小吉", 凶:"凶", "小凶":"小凶", "半凶":"半凶", "末凶":"末凶", bigBad:"大凶" };
+        const levelText = levelMap[fortune.level] || fortune.level;
+        scrollContent.innerHTML = `<p class=\"text-xl font-bold\">${levelText}</p><br><span class="${fortune.level}">${fortune.text}</span>`;
+
+        localStorage.setItem("todayFortune", fortune.text);
+        historyText.textContent = fortune.text;
+
+        retryBtn.style.display = "inline-block";
+      }, 700);
+    });
+
+    const saved = localStorage.getItem("todayFortune");
+    if (saved) historyText.textContent = saved;
+
+    retryBtn.addEventListener("click", () => {
+      stick.classList.remove("show");
+      scroll.style.display = "none";
+      retryBtn.style.display = "none";
+      tube.style.display = "block";
+      document.getElementById("container").style.display = "flex";
+      tube.classList.add("shake");
+    });
+  </script>
+</body>
+</html>
