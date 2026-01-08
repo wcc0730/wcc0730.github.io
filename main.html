@@ -29,7 +29,6 @@
       margin-top: 50px;
       display: flex;
       justify-content: center;
-      position: relative;
     }
 
     /* 籤筒 */
@@ -54,7 +53,6 @@
       100% { transform: translateX(0); }
     }
 
-  
     /* 籤詩捲軸 */
     #resultScroll {
       margin: 40px auto 0;
@@ -72,11 +70,11 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      color: #5a3d2b;
       box-sizing: border-box;
+      color: #5a3d2b;
     }
 
-    /* 吉凶（橫排在上） */
+    /* 吉凶（橫排） */
     .levelText {
       font-size: 2.8rem;
       font-weight: 900;
@@ -84,7 +82,7 @@
       margin-bottom: 20px;
     }
 
-    /* 籤詩內容（直排填滿） */
+    /* 籤詩內容（直排、填滿） */
     .fortuneText {
       writing-mode: vertical-rl;
       text-orientation: upright;
@@ -152,7 +150,6 @@
       { text: "單身魅力上升，展現最真實的自己！", level: "小吉" },
       { text: "感情平穩幸福，是個很棒的日子。", level: "吉" },
 
-      /* 新增 53 條，共 60 條 */
       { text: "有意外的好消息降臨。", level: "吉" },
       { text: "注意周遭的小驚喜，幸福正在靠近。", level: "吉" },
       { text: "有貴人相助，心情大好。", level: "吉" },
@@ -171,30 +168,10 @@
       { text: "今天不適合表白，先觀察。", level: "末凶" },
       { text: "注意別衝動行事。", level: "末凶" },
       { text: "需要休息一下，重新整理心情。", level: "大凶" },
-      { text: "暫時後退一步反而比較好。", level: "大凶" },
-
-      /* 再補足剩餘數量 */
-      { text: "魅力提升，會有人主動靠近你。", level: "吉" },
-      { text: "今天的你特別亮眼。", level: "吉" },
-      { text: "心中願望逐漸靠近。", level: "半吉" },
-      { text: "會收到溫暖的小關心。", level: "半吉" },
-      { text: "適合與朋友外出，有機會遇到新朋友。", level: "末吉" },
-      { text: "過去的誤會有機會解除。", level: "末吉" },
-      { text: "心情放鬆，緣分自然到來。", level: "末小吉" },
-      { text: "好事悄悄累積中。", level: "末小吉" },
-      { text: "稍有不順，但會得到安慰。", level: "凶" },
-      { text: "不必要的擔心反而讓事情變複雜。", level: "凶" },
-      { text: "容易敏感，互動需溫和對待。", level: "小凶" },
-      { text: "不要鑽牛角尖，多看看正向的一面。", level: "小凶" },
-      { text: "注意休息，不然會影響情緒。", level: "半凶" },
-      { text: "有小插曲，但不影響大方向。", level: "半凶" },
-      { text: "建議多傾聽，少做決定。", level: "末凶" },
-      { text: "感情方面較被動。", level: "末凶" },
-      { text: "今日適合自我照顧，不適合談感情。", level: "大凶" },
-      { text: "重新整理步調，明天會更好。", level: "大凶" }
+      { text: "暫時後退一步反而比較好。", level: "大凶" }
     ];
+
     const tube = document.getElementById("tube");
-    const stick = document.getElementById("stick");
     const scroll = document.getElementById("resultScroll");
     const scrollContent = document.getElementById("scrollContent");
     const historyText = document.getElementById("historyText");
@@ -214,8 +191,8 @@
       sound.play();
 
       setTimeout(() => {
+        tube.classList.remove("shake");
         tube.style.display = "none";
-        stick.classList.add("show");
 
         const fortune = fortunes[Math.floor(Math.random() * fortunes.length)];
 
@@ -231,7 +208,6 @@
     };
 
     retryBtn.onclick = () => {
-      stick.classList.remove("show");
       scroll.style.display = "none";
       retryBtn.style.display = "none";
       tube.style.display = "block";
@@ -240,3 +216,4 @@
   </script>
 </body>
 </html>
+
